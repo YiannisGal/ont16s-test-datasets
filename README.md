@@ -53,6 +53,9 @@ awk -F'\t' 'NR>1{print $1}' taxonomy.tsv > ids.txt
 awk 'NR==FNR{k[$1];next} /^>/{split(substr($0,2),a,":"); keep=(a[1] in k)} keep' ids.txt emu/species_taxid.fasta > species_taxid.fasta
 ```
 
+Also packed as `emu_db_zymo_genera.tar.gz` (sha256 `1b1468e3db0c9b61f481e16e09a1b357b28fc8ad0364e3db1f2969f45e6f3fe2`) so Nextflow can download it as one file:
+`tar --sort=name --mtime='2026-10-08' --owner=0 --group=0 -czf emu_db_zymo_genera.tar.gz emu_db_zymo_genera`
+
 Check: Emu 3.6.2 on the 546-read BAM subset detects 12/12 expected bacteria (~50 s, 4 threads).
 
 Please cite when using it: Stoddard et al. 2015 (rrnDB), O'Leary et al. 2016 (RefSeq),
