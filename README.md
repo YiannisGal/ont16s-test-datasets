@@ -28,3 +28,32 @@ The data are a subset of the Oxford Nanopore Technologies Benchmark Datasets, re
 under **CC BY-NC 4.0** (https://creativecommons.org/licenses/by-nc/4.0/).
 Credit: Oxford Nanopore Technologies, ONT Open Data (https://registry.opendata.aws/ont-open-data/).
 Use is limited to non-commercial purposes.
+
+## emu_db_zymo_genera/ (Emu-format test database)
+
+| File | Size (bytes) | sha256 |
+|---|---|---|
+| `species_taxid.fasta` | 19,532,946 | `9c5f7c8186d5b19da4a93b18e0561bf1aed3fd523d35458dfc57cf9b91e11ab8` |
+| `taxonomy.tsv` | 120,438 | `245ddbc20f9487c8a4b2a4b33ed48f87ae040ad03c39f3331fb6ef2083cdb75c` |
+
+Subset of the **Emu default database** (rrnDB v5.6 + NCBI 16S RefSeq, 2020-09-17;
+OSF project `56uf7`, `emu-prebuilt/emu.tar`, sha256 `75e93064…5e4f4132`): all 955 species
+(10,170 sequences) of the 15 genera in the Zymo MSPlus mock (Pseudomonas, Escherichia,
+Salmonella, Limosilactobacillus, Lactobacillus, Enterococcus, Staphylococcus, Listeria,
+Bacillus, Bifidobacterium, Borrelia, Borreliella, Chlamydia, Gardnerella, Shigella).
+Keeping whole genera keeps realistic near-neighbour confusion. **For tests only** — not
+a general-purpose database.
+
+Made with:
+
+```bash
+G='^(Pseudomonas|Escherichia|Salmonella|Limosilactobacillus|Lactobacillus|Enterococcus|Staphylococcus|Listeria|Bacillus|Bifidobacterium|Borrelia|Borreliella|Chlamydia|Gardnerella|Shigella)$'
+awk -F'\t' -v g="$G" 'NR==1 || $3 ~ g' emu/taxonomy.tsv > taxonomy.tsv
+awk -F'\t' 'NR>1{print $1}' taxonomy.tsv > ids.txt
+awk 'NR==FNR{k[$1];next} /^>/{split(substr($0,2),a,":"); keep=(a[1] in k)} keep' ids.txt emu/species_taxid.fasta > species_taxid.fasta
+```
+
+Check: Emu 3.6.2 on the 546-read BAM subset detects 12/12 expected bacteria (~50 s, 4 threads).
+
+Please cite when using it: Stoddard et al. 2015 (rrnDB), O'Leary et al. 2016 (RefSeq),
+Schoch et al. 2020 (NCBI Taxonomy), Curry et al. 2022 (Emu).
